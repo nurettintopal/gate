@@ -1,0 +1,51 @@
+{
+    "version": 3,
+    "name": "nurettintopal/gate",
+    "port": 8080,
+    "extra_config": {
+      "qos/ratelimit/proxy": {
+        "max_rate": 100,
+        "client_max_rate": 20,
+        "strategy": "ip"
+      },
+      "security/ipfilter": {
+        "whitelist": ["192.168.1.0/24"],
+        "blacklist": ["192.168.1.100"]
+      }
+    },
+    "endpoints": [
+      {
+        "endpoint": "/public",
+        "method": "GET",
+        "backend": [
+          {
+            "url_pattern": "/todos/1",
+            "host": ["https://jsonplaceholder.typicode.com"]
+          }
+        ]
+      },
+      {
+        "endpoint": "/secure",
+        "method": "GET",
+        "extra_config": {
+          "qos/ratelimit/proxy": {
+            "max_rate": 50,
+            "client_max_rate": 10,
+            "strategy": "ip"
+          },
+          "auth/validator": {
+            "header": "Authorization",
+            "endpoint": "/validate-token",
+            "host": ["https://jsonplaceholder.typicode.com"],
+            "error_status": 401
+          }
+        },
+        "backend": [
+          {
+            "url_pattern": "/todos/1",
+            "host": ["https://jsonplaceholder.typicode.com"]
+          }
+        ]
+      }
+    ]
+  }
